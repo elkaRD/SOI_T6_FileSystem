@@ -231,7 +231,7 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
         
         int prev = curBlock;
         curBlock = NextFreeBlock(file, curBlock);
-        node.nextNode = curBlock;
+        if (copiedBytes < fileSize) node.nextNode = curBlock;
         
         SetNode(file, prev, node);
     }
@@ -359,7 +359,7 @@ int ExportFile(const char *diskName, const char *fileToExport, const char *newNa
     for (int i = 0; i < FILES_LIMIT; ++i)
     {
         fread(&desc, sizeof(Descriptor), 1, file);
-        if (strcmp(desc.name, fileToExport) == 0)
+        if (desc.isUsed && strcmp(desc.name, fileToExport) == 0)
         {
             fileIndex = i;
             break;
@@ -410,7 +410,7 @@ int ExportFile(const char *diskName, const char *fileToExport, const char *newNa
 
 int DeleteFile(const char *diskName, const char *fileName)
 {
-    FILE *file = fopen(diskName, "rb");
+    FILE *file = fopen(diskName, "r+b");
     
     if (!file)
     {
@@ -424,13 +424,49 @@ int DeleteFile(const char *diskName, const char *fileName)
     {
         printf("Disk was configurated for a different version of file system\n");
         fclose(file);
-        return 1;
+        return 2;
     }
     
     Header header;
     fread(&header, sizeof(Header), 1, file);
     
+    Descriptor desc;
+    int nodeIndex = -1;
     
+    for (int i = 0; i < FILES_LIMIT; ++i)
+    {
+        desc = GetDescriptor(file, i);
+        if (desc.isUsed && strcmp(desc.name, fileName) == 0)
+        {
+            desc.isUsed = 0;
+            SetDescriptor(file, i, desc);
+            nodeIndex = desc.firstNode;
+            break;
+        }
+    }
+    
+    if (nodeIndex < 0)
+    {
+        printf("File %s does not exist in the disk %s\n", fileName, diskName);
+        fclose(file);
+        return 3;
+    }
+    
+    Node curNode = GetNode(file, nodeIndex);
+    
+    do
+    {
+        printf("DEBUG: %d\n", nodeIndex);
+        
+        curNode.isUsed = 0;
+        SetNode(file, nodeIndex, curNode);
+        
+        nodeIndex = curNode.nextNode;
+        curNode = GetNode(file, nodeIndex);
+    } while (curNode.nextNode >= 0);
+    
+    fclose(file);
+    return 0;
 }
 
 void RunDiskLoop()
