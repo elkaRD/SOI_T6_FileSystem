@@ -184,7 +184,11 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
     for (int i = 0; i < FILES_LIMIT; ++i)
     {
         fread(&desc, sizeof(Descriptor), 1, file);
-        if (desc.isUsed && strcmp(desc.name, newName) != 0)
+        
+        //printf("Browsing files: %d %s  %s   %d\n", desc.isUsed, desc.name, newName, desc.fileSize);
+        //printf("CHECK\n");
+        
+        if (desc.isUsed && strcmp(desc.name, newName) == 0)
         {
             printf("File %s already exists in the disc %s\n", newName, diskName);
             fclose(file);
@@ -201,18 +205,10 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
     int curBlock = NextFreeBlock(file, -1);
     
     Descriptor newDescriptor;
+    newDescriptor.isUsed = 1;
     newDescriptor.fileSize = fileSize;
     newDescriptor.firstNode = curBlock;
-    
-//    for (int i = 0; i < strlen(newName); ++i)
-//    {
-//        //TODO: repair
-//        //newDescriptor.name[i] = newName[i];
-//    }
-    
-    newDescriptor.name[0] = 'a';
-    newDescriptor.name[1] = 'b';
-    newDescriptor.name[2] = NULL;
+    strcpy(newDescriptor.name, newName);
     
     SetDescriptor(file, freeIndex, newDescriptor);
     
@@ -242,6 +238,96 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
     
     fclose(file);
     fclose(src);
+    return 0;
+}
+
+int DisplayMap(const char *diskName)
+{
+    FILE *file = fopen(diskName, "rb");
+    
+    if (!file)
+    {
+        printf("Cannot open the disk %s\n", diskName);
+        return 1;
+    }
+    
+    int pointer = 0;
+    printf("%9d - %9lu: FS header\n", 0, sizeof(Header) + 1);
+    printf("%9lu - %9d: Files descriptors\n", sizeof(Header) + 1, GetNodeAddr(0));
+    printf("%9d - %9d: Nodes\n", GetNodeAddr(0), GetBlockAddr(0));
+    printf("%9d - %9d: Blocks\n", GetBlockAddr(0), SIZE_BLOCK * (BLOCKS_LIMIT-1));
+    printf("BLOCKS MEMORY MAP:\n");
+    //printf("%9d - %9d: Files descriptors\n", pointer, pointer+= sizeof(Descriptor) * BLOCKS_LIMIT);
+    
+    fseek(file, GetNodeAddr(0), SEEK_SET);
+    Node node;
+    fread(&node, sizeof(Node), 1, file);
+    int isUsed = node.isUsed;
+    int begPointer = GetBlockAddr(0);
+    int begIndex = 0;
+    
+    for (int i = 1; i < BLOCKS_LIMIT; ++i)
+    {
+        fread(&node, sizeof(Node), 1, file);
+        pointer += SIZE_BLOCK;
+        
+        if (isUsed != node.isUsed)
+        {
+            if (isUsed) printf("%7d - %7d     %9d - %9d: USED\n", begIndex, i, begPointer, pointer);
+            else        printf("%7d - %7d     %9d - %9d: FREE\n", begIndex, i, begPointer, pointer);
+            
+            begPointer = pointer;
+            begIndex = i;
+            isUsed = node.isUsed;
+        }
+    }
+    
+    if (node.isUsed) printf("%7d - %7d     %9d - %9d: USED\n", begIndex, BLOCKS_LIMIT-1, begPointer, pointer);
+    else             printf("%7d - %7d     %9d - %9d: FREE\n", begIndex, BLOCKS_LIMIT-1, begPointer, pointer);
+    
+    fclose(file);
+    return 0;
+}
+
+int DisplayFiles(const char *diskName)
+{
+    FILE *file = fopen(diskName, "rb");
+    
+    if (!file)
+    {
+        printf("Cannot open the disk %s\n", diskName);
+        return 1;
+    }
+    
+    printf("   List of files:\n");
+    
+    int versionCode;
+    fread(&versionCode, sizeof(int), 1, file);
+    if (versionCode != VERSION)
+    {
+        printf("Disk was configurated for a different version of file system\n");
+        fclose(file);
+        return 1;
+    }
+    
+    Header header;
+    fread(&header, sizeof(Header), 1, file);
+    
+    Descriptor desc;
+    int counter = 0;
+    
+    for (int i = 0; i < FILES_LIMIT; ++i)
+    {
+        fread(&desc, sizeof(Descriptor), 1, file);
+        if (desc.isUsed == 1)
+        {
+            printf(" %3d (%9d) - %s\n", ++counter, desc.fileSize, desc.name);
+        }
+    }
+    
+    printf("%d files in total\n", header.filesCounter);
+    
+    fclose(file);
     return 0;
 }
 
@@ -314,6 +400,32 @@ int main(int argc, char **argv)
         {
             InsertFile(diskName, fileToInsert, fileToInsert);
         }
+    }
+    else if (strcmp(mode, "help") == 0)
+    {
+        printf(" SOI T6 File system by Robert Dudzinski\n\n");
+        printf("   List of all commands:\n\n");
+        printf("new (DISK_NAME) - creates a new disk with the name DISK_NAME\n");
+        printf("remove (DISK_NAME) - deletes a new disk with the name DISK_NAME\n");
+        printf("insert (DISK_NAME) (EXT_FILE) [INTERNAL_NAME] - copies a file EXT_FILE to the disk DISK_NAME and changes its name to INTERNAL_NAME (or name of EXT_NAME if internal name it's not provided\n");
+        printf("memory (DISK_NAME) - displays map of memory in the disk DISK_NAME\n");
+        printf("list (DISK_NAME) - displays list of all files\n");
+    }
+    else if (strcmp(mode, "memory") == 0)
+    {
+        printf("memory\n");
+        if (argc <= 2) return 0;
+        
+        char *diskName = argv[2];
+        DisplayMap(diskName);
+    }
+    else if  (strcmp(mode, "list") == 0)
+    {
+        printf("list\n");
+        if (argc <= 2) return 0;
+        
+        char *diskName = argv[2];
+        DisplayFiles(diskName);
     }
     
     /*while (1)
