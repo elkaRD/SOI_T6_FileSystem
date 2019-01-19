@@ -8,17 +8,6 @@
 #include <stdio.h>
 #include <string.h>
 
-/*#define SIZE_HEADER         sizeof(Header)
-#define SIZE_FILE_DESC      sizeof(Descriptor)
-#define SIZE_FILENAME       256
-#define SIZE_NODE           sizeof(Node)
-#define SIZE_BLOCK          1024 * 32
-
-#define FILES_LIMIT         256
-#define BLOCKS_LIMIT        1024
-
-#define VERSION             2*/
-
 const int VERSION = 2;
 
 const int ORG_SIZE_FILENAME     = 256;
@@ -36,6 +25,8 @@ struct Header
     int version;
     int usedFiles;
     int usedBlocks;
+    
+    int usedMemory;
     
     int blockSize;
     int blocksLimit;
@@ -72,6 +63,12 @@ Header GetHeader(FILE *disk)
     return header;
 }
 
+void SetHeader(FILE *disk, Header header)
+{
+    fseek(disk, 0, SEEK_SET);
+    fwrite(&header, sizeof(Header), 1, disk);
+}
+
 DiskHandler OpenDisk(const char *diskName, const char *attr)
 {
     DiskHandler disk;
@@ -105,12 +102,13 @@ DiskHandler OpenDisk(const char *diskName, const char *attr)
     return disk;
 }
 
-void CreateDisk(const char *diskName, int diskSize)
+int CreateDisk(const char *diskName, int diskSize)
 {
     Header header;
     header.version = VERSION;
     header.usedFiles = 0;
     header.usedBlocks = 0;
+    header.usedMemory = 0;
     header.blockSize = ORG_SIZE_BLOCK;
     header.blocksLimit = ORG_LIMIT_BLOCKS;
     header.filesLimit = ORG_LIMIT_FILES;
@@ -120,6 +118,12 @@ void CreateDisk(const char *diskName, int diskSize)
     if (diskSize % header.blockSize != 0) header.blocksLimit++;
     
     FILE *file = fopen(diskName, "wb");
+    
+    if (!file)
+    {
+        printf("Cannot create a file for the disk\n");
+        return 1;
+    }
     
     fwrite(&header, sizeof(Header), 1, file);
     
@@ -138,6 +142,7 @@ void CreateDisk(const char *diskName, int diskSize)
         fwrite(emptyData, sizeof(char), header.blockSize, file);
     
     fclose(file);
+    return 0;
 }
 
 void RemoveDisk(const char *diskName)
@@ -294,7 +299,12 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
         if (copiedBytes < fileSize) node.nextNode = curBlock;
         
         SetNode(file, prev, node);
+        header.usedBlocks++;
     }
+    
+    header.usedMemory += fileSize;
+    header.usedFiles++;
+    SetHeader(file, header);
     
     fclose(file);
     fclose(src);
@@ -474,14 +484,51 @@ int DeleteFile(const char *diskName, const char *fileName)
     
     do
     {
-        printf("DEBUG: %d\n", nodeIndex);
-        
         curNode.isUsed = 0;
         SetNode(file, nodeIndex, curNode);
         
         nodeIndex = curNode.nextNode;
         curNode = GetNode(file, nodeIndex);
+        
+        header.usedBlocks--;
     } while (nodeIndex >= 0);
+    
+    header.usedFiles--;
+    header.usedMemory -= desc.fileSize;
+    SetHeader(file, header);
+    
+    fclose(file);
+    return 0;
+}
+
+int DisplayInfo(const char *diskName)
+{
+    DiskHandler dh = OpenDisk(diskName, "rb");
+    if (dh.status) return dh.status;
+    
+    FILE *file = dh.file;
+    Header header = dh.header;
+    
+    int totalMemory = header.blocksLimit * header.blockSize;
+    int notAvailable = header.usedBlocks * header.blockSize;
+    
+    printf("\n\n      Information about disk %s\n\n", diskName);
+    printf(" Total memory:          %9dB\n", totalMemory);
+    printf(" Available memory:      %9dB\n", totalMemory - notAvailable);
+    printf(" Used memory:           %9dB\n", header.usedMemory);
+    printf(" Not available:         %9dB\n", notAvailable);
+    
+    printf("\n");
+    printf(" Files:                 %d\n", header.usedFiles);
+    printf(" Max number of files:   %d\n", header.filesLimit);
+    
+    printf("\n");
+    printf(" Version:               %d\n", header.version);
+    printf(" Block size:            %dB\n", header.blockSize);
+    printf(" Blocks:                %d\n", header.blocksLimit);
+    printf(" Used blocks:           %d\n", header.usedBlocks);
+    
+    printf("\n");
     
     fclose(file);
     return 0;
@@ -517,8 +564,10 @@ int main(int argc, char **argv)
         if (argc <= 2) return 0;
         
         char *diskName = argv[2];
-        CreateDisk(diskName, 15000000);
-        printf("Created disk %s\n", diskName);
+        if (CreateDisk(diskName, 15000000))
+            printf("Error creating disk\n");
+        else
+            printf("Created disk %s\n", diskName);
     }
     else if (strcmp(mode, "remove") == 0)
     {
@@ -532,7 +581,7 @@ int main(int argc, char **argv)
         if (respond == 'Y')
         {
             RemoveDisk(diskName);
-            printf("Removed disk %s\n", diskName);
+            printf("Reomved the disk %s\n", diskName);
         }
         else
         {
@@ -550,24 +599,31 @@ int main(int argc, char **argv)
         if (argc <= 4)
         {
             char *newName = argv[4];
-            InsertFile(diskName, fileToInsert, newName);
+            if (InsertFile(diskName, fileToInsert, newName))
+                printf("Error inserting file\n");
+            else
+                printf("Inserted %s to the disk %s\n", newName, fileToInsert);
         }
         else
         {
-            InsertFile(diskName, fileToInsert, fileToInsert);
+            if (InsertFile(diskName, fileToInsert, fileToInsert))
+                printf("Error inserting file\n");
+            else
+                printf("Inserted %s to the disk %s\n", fileToInsert, fileToInsert);
         }
     }
     else if (strcmp(mode, "help") == 0)
     {
         printf("\n\n\n SOI T6 File system by Robert Dudzinski\n\n");
         printf("   List of all commands:\n\n");
-        printf("new (DISK_NAME) - creates a new disk with the name DISK_NAME\n");
-        printf("remove (DISK_NAME) - deletes a new disk with the name DISK_NAME\n");
-        printf("insert (DISK_NAME) (EXT_FILE) [INTERNAL_NAME] - copies a file EXT_FILE to the disk DISK_NAME and changes its name to INTERNAL_NAME (or name of EXT_NAME if internal name it's not provided\n");
-        printf("memory (DISK_NAME) - displays map of memory in the disk DISK_NAME\n");
-        printf("list (DISK_NAME) - displays list of all files\n");
-        printf("export (DISK_NAME) (FILE_NAME) [EXPORT_NAME]- copies file FILE_NAME from disk DISK_NAME to the folder where disk exists\n");
-        printf("delete (DISK_NAME) (FILE_NAME) - deletes file FILE_NAME from the disk DISK_NAME\n");
+        printf("new (DISK_NAME) \n\t- creates a new disk with the name DISK_NAME\n\n");
+        printf("remove (DISK_NAME) \n\t- deletes a new disk with the name DISK_NAME\n\n");
+        printf("insert (DISK_NAME) (EXT_FILE) [INTERNAL_NAME] \n\t- copies a file EXT_FILE to the disk DISK_NAME and changes its name to INTERNAL_NAME (or name of EXT_NAME if internal name it's not provided\n\n");
+        printf("memory (DISK_NAME) \n\t- displays map of memory in the disk DISK_NAME\n\n");
+        printf("list (DISK_NAME) \n\t- displays list of all files\n\n");
+        printf("export (DISK_NAME) (FILE_NAME) [EXPORT_NAME] \n\t- copies file FILE_NAME from disk DISK_NAME to the folder where disk exists\n\n");
+        printf("delete (DISK_NAME) (FILE_NAME) \n\t- deletes file FILE_NAME from the disk DISK_NAME\n\n");
+        printf("info (DISK_NAME) \n\t- displays information about given disk DISK_NAME\n\n");
         printf("\n\n\n");
     }
     else if (strcmp(mode, "memory") == 0)
@@ -576,7 +632,8 @@ int main(int argc, char **argv)
         if (argc <= 2) return 0;
         
         char *diskName = argv[2];
-        DisplayMap(diskName);
+        if (DisplayMap(diskName))
+            printf("Error display memory map\n");
     }
     else if (strcmp(mode, "list") == 0)
     {
@@ -584,7 +641,8 @@ int main(int argc, char **argv)
         if (argc <= 2) return 0;
         
         char *diskName = argv[2];
-        DisplayFiles(diskName);
+        if (DisplayFiles(diskName))
+            printf("Error display list of files\n");
     }
     else if (strcmp(mode, "export") == 0)
     {
@@ -593,7 +651,10 @@ int main(int argc, char **argv)
         
         char *diskName = argv[2];
         char *fileToExport = argv[3];
-        ExportFile(diskName, fileToExport, argv[4]);
+        if (ExportFile(diskName, fileToExport, argv[4]))
+            printf("Error exporting file %s from disk %s\n", fileToExport, diskName);
+        else
+            printf("Exported file %s from the disk %s\n", fileToExport, diskName);
     }
     else if (strcmp(mode, "delete") == 0)
     {
@@ -602,7 +663,19 @@ int main(int argc, char **argv)
         
         char *diskName = argv[2];
         char *fileToDelete = argv[3];
-        DeleteFile(diskName, fileToDelete);
+        if (DeleteFile(diskName, fileToDelete))
+            printf("Error deleting file %s from the disk %s\n", fileToDelete, diskName);
+        else
+            printf("Deleted file %s from the disk %s\n", fileToDelete, diskName);
+    }
+    else if (strcmp(mode, "info") == 0)
+    {
+        printf("list\n");
+        if (argc <= 2) return 0;
+        
+        char *diskName = argv[2];
+        if (DisplayInfo(diskName))
+            printf("Error display information about disk %s\n", diskName);
     }
     else
     {
