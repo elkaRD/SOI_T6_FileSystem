@@ -321,11 +321,10 @@ int DisplayMap(const char *diskName)
     
     printf("     Used memory in the disk %s\n\n", diskName);
     
-    int pointer = 0;
-    printf("%9d - %9lu: FS header\n", 0, sizeof(Header) + 1);
-    printf("%9lu - %9d: Files descriptors\n", sizeof(Header) + 1, GetNodeAddr(0));
-    printf("%9d - %9d: Nodes\n", GetNodeAddr(0), GetBlockAddr(0));
-    printf("%9d - %9d: Blocks\n", GetBlockAddr(0), SIZE_BLOCK * (LIMIT_BLOCKS-1));
+    printf("%9d - %9lu     %9luB: FS header\n", 0, sizeof(Header)-1, sizeof(Header));
+    printf("%9lu - %9d     %9luB: %d File descriptors\n", sizeof(Header), GetNodeAddr(0)-1, GetNodeAddr(0) - sizeof(Header), LIMIT_FILES);
+    printf("%9d - %9d     %9dB: %d Nodes\n", GetNodeAddr(0), GetBlockAddr(0)-1, GetBlockAddr(0)-GetNodeAddr(0), LIMIT_BLOCKS);
+    printf("%9d - %9d     %9dB: %d Blocks\n", GetBlockAddr(0), SIZE_BLOCK * (LIMIT_BLOCKS-1)-1, SIZE_BLOCK * (LIMIT_BLOCKS-1) - GetBlockAddr(0), LIMIT_BLOCKS);
     printf("\n\nBLOCKS MEMORY MAP:\n\n");
     //printf("%9d - %9d: Files descriptors\n", pointer, pointer+= sizeof(Descriptor) * BLOCKS_LIMIT);
     
@@ -335,6 +334,7 @@ int DisplayMap(const char *diskName)
     int isUsed = node.isUsed;
     int begPointer = GetBlockAddr(0);
     int begIndex = 0;
+    int pointer = GetBlockAddr(0);
     
     for (int i = 1; i < LIMIT_BLOCKS; ++i)
     {
@@ -343,8 +343,8 @@ int DisplayMap(const char *diskName)
         
         if (isUsed != node.isUsed)
         {
-            if (isUsed) printf("%7d - %7d     %9d - %9d: USED\n", begIndex, i, begPointer, pointer);
-            else        printf("%7d - %7d     %9d - %9d: FREE\n", begIndex, i, begPointer, pointer);
+            if (isUsed) printf("%7d - %7d     %9d - %9d     %9dB: USED\n", begIndex, i-1, begPointer, pointer-1, pointer-begPointer);
+            else        printf("%7d - %7d     %9d - %9d     %9dB: FREE\n", begIndex, i-1, begPointer, pointer-1, pointer-begPointer);
             
             begPointer = pointer;
             begIndex = i;
@@ -352,8 +352,8 @@ int DisplayMap(const char *diskName)
         }
     }
     
-    if (node.isUsed) printf("%7d - %7d     %9d - %9d: USED\n", begIndex, LIMIT_BLOCKS-1, begPointer, pointer);
-    else             printf("%7d - %7d     %9d - %9d: FREE\n", begIndex, LIMIT_BLOCKS-1, begPointer, pointer);
+    if (node.isUsed) printf("%7d - %7d     %9d - %9d     %9dB: USED\n", begIndex, LIMIT_BLOCKS-1, begPointer, pointer-1, pointer-begPointer);
+    else             printf("%7d - %7d     %9d - %9d     %9dB: FREE\n", begIndex, LIMIT_BLOCKS-1, begPointer, pointer-1, pointer-begPointer);
     
     fclose(file);
     return 0;
@@ -511,12 +511,14 @@ int DisplayInfo(const char *diskName)
     
     int totalMemory = header.blocksLimit * header.blockSize;
     int notAvailable = header.usedBlocks * header.blockSize;
+    double frag = 100.0 - (double)header.usedMemory / (double)notAvailable * 100.0;
     
     printf("\n\n      Information about disk %s\n\n", diskName);
     printf(" Total memory:          %9dB\n", totalMemory);
     printf(" Available memory:      %9dB\n", totalMemory - notAvailable);
     printf(" Used memory:           %9dB\n", header.usedMemory);
     printf(" Not available:         %9dB\n", notAvailable);
+    printf(" Int fragmentation:     %.3f%%\n", frag);
     
     printf("\n");
     printf(" Files:                 %d\n", header.usedFiles);
