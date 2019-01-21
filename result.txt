@@ -1,0 +1,302 @@
+Create disk:
+Created disk disk
+
+
+      INFORMATION ABOUT DISK disk
+
+ Total memory:           40001536B
+ Available memory:       40001536B
+ Used memory:                   0B
+ Not available:                 0B
+ Int fragmentation:     0.000%
+
+ Files:                 0
+ Max number of files:   512
+
+ Version:               2
+ Block size:            4096B
+ Blocks:                9766
+ Used blocks:           0
+
+#############################################################################################
+Insert few small files
+Inserted t1.txt to the disk small.txt
+Inserted t2.txt to the disk small.txt
+Inserted t3.txt to the disk small.txt
+
+     USED MEMORY IN THE DISK disk
+
+        0 -        31            32B: FS header
+       32 -    143391        143360B: 512 File descriptors
+   143392 -    221519         78128B: 9766 Nodes
+   221520 -  39997439      39775920B: 9766 Blocks
+
+
+BLOCKS MEMORY MAP:
+
+      0 -       2        221520 -    233807         12288B: USED
+      3 -    9765        233808 -  40218959      39985152B: FREE
+
+	LIST OF FILES ON THE DISK disk
+
+   1        77B        Mon Jan 21 12:55:42 2019 - t3.txt
+   2        77B        Mon Jan 21 12:55:42 2019 - t2.txt
+   3        77B        Mon Jan 21 12:55:42 2019 - t1.txt
+3 files in total
+
+
+      INFORMATION ABOUT DISK disk
+
+ Total memory:           40001536B
+ Available memory:       39989248B
+ Used memory:                 231B
+ Not available:             12288B
+ Int fragmentation:     98.120%
+
+ Files:                 3
+ Max number of files:   512
+
+ Version:               2
+ Block size:            4096B
+ Blocks:                9766
+ Used blocks:           3
+
+#############################################################################################
+Insert medium and small files
+Inserted pic1.bmp to the disk logo.bmp
+Inserted t4.txt to the disk small.txt
+Inserted doc1.pdf to the disk doc.pdf
+Inserted t5.txt to the disk small.txt
+Inserted pic2.bmp to the disk logo.bmp
+
+     USED MEMORY IN THE DISK disk
+
+        0 -        31            32B: FS header
+       32 -    143391        143360B: 512 File descriptors
+   143392 -    221519         78128B: 9766 Nodes
+   221520 -  39997439      39775920B: 9766 Blocks
+
+
+BLOCKS MEMORY MAP:
+
+      0 -     168        221520 -    913743        692224B: USED
+    169 -    9765        913744 -  40218959      39305216B: FREE
+
+	LIST OF FILES ON THE DISK disk
+
+   1    103573B        Mon Jan 21 12:55:42 2019 - pic2.bmp
+   2        77B        Mon Jan 21 12:55:42 2019 - t5.txt
+   3    457157B        Mon Jan 21 12:55:42 2019 - doc1.pdf
+   4        77B        Mon Jan 21 12:55:42 2019 - t4.txt
+   5    103573B        Mon Jan 21 12:55:42 2019 - pic1.bmp
+   6        77B        Mon Jan 21 12:55:42 2019 - t3.txt
+   7        77B        Mon Jan 21 12:55:42 2019 - t2.txt
+   8        77B        Mon Jan 21 12:55:42 2019 - t1.txt
+8 files in total
+
+
+      INFORMATION ABOUT DISK disk
+
+ Total memory:           40001536B
+ Available memory:       39309312B
+ Used memory:              664688B
+ Not available:            692224B
+ Int fragmentation:     3.978%
+
+ Files:                 8
+ Max number of files:   512
+
+ Version:               2
+ Block size:            4096B
+ Blocks:                9766
+ Used blocks:           169
+
+#############################################################################################
+Remove few files
+Deleted file t2.txt from the disk disk
+Deleted file pic1.bmp from the disk disk
+Deleted file doc1.pdf from the disk disk
+
+     USED MEMORY IN THE DISK disk
+
+        0 -        31            32B: FS header
+       32 -    143391        143360B: 512 File descriptors
+   143392 -    221519         78128B: 9766 Nodes
+   221520 -  39997439      39775920B: 9766 Blocks
+
+
+BLOCKS MEMORY MAP:
+
+      0 -       0        221520 -    225615          4096B: USED
+      1 -       1        225616 -    229711          4096B: FREE
+      2 -       2        229712 -    233807          4096B: USED
+      3 -      28        233808 -    340303        106496B: FREE
+     29 -      29        340304 -    344399          4096B: USED
+     30 -     141        344400 -    803151        458752B: FREE
+    142 -     168        803152 -    913743        110592B: USED
+    169 -    9765        913744 -  40218959      39305216B: FREE
+
+	LIST OF FILES ON THE DISK disk
+
+   1    103573B        Mon Jan 21 12:55:42 2019 - pic2.bmp
+   2        77B        Mon Jan 21 12:55:42 2019 - t5.txt
+   3        77B        Mon Jan 21 12:55:42 2019 - t4.txt
+   4        77B        Mon Jan 21 12:55:42 2019 - t3.txt
+   5        77B        Mon Jan 21 12:55:42 2019 - t1.txt
+5 files in total
+
+
+      INFORMATION ABOUT DISK disk
+
+ Total memory:           40001536B
+ Available memory:       39878656B
+ Used memory:              103881B
+ Not available:            122880B
+ Int fragmentation:     15.461%
+
+ Files:                 5
+ Max number of files:   512
+
+ Version:               2
+ Block size:            4096B
+ Blocks:                9766
+ Used blocks:           30
+
+#############################################################################################
+Insert large file
+Inserted large1.png to the disk large.png
+
+     USED MEMORY IN THE DISK disk
+
+        0 -        31            32B: FS header
+       32 -    143391        143360B: 512 File descriptors
+   143392 -    221519         78128B: 9766 Nodes
+   221520 -  39997439      39775920B: 9766 Blocks
+
+
+BLOCKS MEMORY MAP:
+
+      0 -    2834        221520 -  11833679      11612160B: USED
+   2835 -    9765      11833680 -  40218959      28385280B: FREE
+
+	LIST OF FILES ON THE DISK disk
+
+   1    103573B        Mon Jan 21 12:55:42 2019 - pic2.bmp
+   2        77B        Mon Jan 21 12:55:42 2019 - t5.txt
+   3        77B        Mon Jan 21 12:55:42 2019 - t4.txt
+   4        77B        Mon Jan 21 12:55:42 2019 - t3.txt
+   5  11485784B        Mon Jan 21 12:55:42 2019 - large1.png
+   6        77B        Mon Jan 21 12:55:42 2019 - t1.txt
+6 files in total
+
+
+      INFORMATION ABOUT DISK disk
+
+ Total memory:           40001536B
+ Available memory:       28389376B
+ Used memory:            11589665B
+ Not available:          11612160B
+ Int fragmentation:     0.194%
+
+ Files:                 6
+ Max number of files:   512
+
+ Version:               2
+ Block size:            4096B
+ Blocks:                9766
+ Used blocks:           2835
+
+#############################################################################################
+Export pic2.bmp and large.png
+Exported file pic2.bmp from the disk disk
+Exported file large1.png from the disk disk
+#############################################################################################
+Remove everything except large file
+Deleted file t1.txt from the disk disk
+Deleted file t3.txt from the disk disk
+Deleted file t4.txt from the disk disk
+Deleted file t5.txt from the disk disk
+Deleted file pic2.bmp from the disk disk
+
+     USED MEMORY IN THE DISK disk
+
+        0 -        31            32B: FS header
+       32 -    143391        143360B: 512 File descriptors
+   143392 -    221519         78128B: 9766 Nodes
+   221520 -  39997439      39775920B: 9766 Blocks
+
+
+BLOCKS MEMORY MAP:
+
+      0 -       0        221520 -    225615          4096B: FREE
+      1 -       1        225616 -    229711          4096B: USED
+      2 -       2        229712 -    233807          4096B: FREE
+      3 -      28        233808 -    340303        106496B: USED
+     29 -      29        340304 -    344399          4096B: FREE
+     30 -     141        344400 -    803151        458752B: USED
+    142 -     168        803152 -    913743        110592B: FREE
+    169 -    2834        913744 -  11833679      10919936B: USED
+   2835 -    9765      11833680 -  40218959      28385280B: FREE
+
+	LIST OF FILES ON THE DISK disk
+
+   1  11485784B        Mon Jan 21 12:55:42 2019 - large1.png
+1 files in total
+
+
+      INFORMATION ABOUT DISK disk
+
+ Total memory:           40001536B
+ Available memory:       28512256B
+ Used memory:            11485784B
+ Not available:          11489280B
+ Int fragmentation:     0.030%
+
+ Files:                 1
+ Max number of files:   512
+
+ Version:               2
+ Block size:            4096B
+ Blocks:                9766
+ Used blocks:           2805
+
+#############################################################################################
+Remove the last (large) file
+Deleted file large1.png from the disk disk
+
+     USED MEMORY IN THE DISK disk
+
+        0 -        31            32B: FS header
+       32 -    143391        143360B: 512 File descriptors
+   143392 -    221519         78128B: 9766 Nodes
+   221520 -  39997439      39775920B: 9766 Blocks
+
+
+BLOCKS MEMORY MAP:
+
+      0 -    9765        221520 -  40218959      39997440B: FREE
+
+	LIST OF FILES ON THE DISK disk
+
+0 files in total
+
+
+      INFORMATION ABOUT DISK disk
+
+ Total memory:           40001536B
+ Available memory:       40001536B
+ Used memory:                   0B
+ Not available:                 0B
+ Int fragmentation:     0.000%
+
+ Files:                 0
+ Max number of files:   512
+
+ Version:               2
+ Block size:            4096B
+ Blocks:                9766
+ Used blocks:           0
+
+#############################################################################################
+Remove the disk
+Removed the disk disk

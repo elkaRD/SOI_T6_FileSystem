@@ -350,7 +350,7 @@ int DisplayMap(const char *diskName)
     file = dh.file;
     header = dh.header;
     
-    printf("     Used memory in the disk %s\n\n", diskName);
+    printf("\n     USED MEMORY IN THE DISK %s\n\n", diskName);
     
     printf("%9d - %9lu     %9luB: FS header\n", 0, sizeof(struct Header)-1, sizeof(struct Header));
     printf("%9lu - %9d     %9luB: %d File descriptors\n", sizeof(struct Header), GetNodeAddr(0)-1, GetNodeAddr(0) - sizeof(struct Header), LIMIT_FILES);
@@ -405,6 +405,8 @@ int DisplayFiles(const char *diskName)
     header = dh.header;
     
     fseek(file, GetDescriptorAddr(0), SEEK_SET);
+    
+    printf("\n\tLIST OF FILES ON THE DISK %s\n\n", diskName);
     
     for (i = 0; i < LIMIT_FILES; ++i)
     {
@@ -474,8 +476,6 @@ int ExportFile(const char *diskName, const char *fileToExport, const char *newNa
     curBlock = desc.firstNode;
     node = GetNode(file, curBlock);
     copiedBytes = 0;
-    
-    printf("DEBUG file size: %d\n", desc.fileSize);
     
     while (copiedBytes < desc.fileSize)
     {
@@ -557,7 +557,7 @@ int DisplayInfo(const char *diskName)
 {
     FILE *file;
     struct Header header;
-    g
+    
     int totalMemory;
     int notAvailable;
     double frag;
@@ -570,9 +570,10 @@ int DisplayInfo(const char *diskName)
     
     totalMemory = header.blocksLimit * header.blockSize;
     notAvailable = header.usedBlocks * header.blockSize;
-    frag = 100.0 - (double)header.usedMemory / (double)notAvailable * 100.0;
+    if (notAvailable > 0) frag = 100.0 - (double)header.usedMemory / (double)notAvailable * 100.0;
+    else frag = 0;
     
-    printf("\n\n      Information about disk %s\n\n", diskName);
+    printf("\n\n      INFORMATION ABOUT DISK %s\n\n", diskName);
     printf(" Total memory:          %9dB\n", totalMemory);
     printf(" Available memory:      %9dB\n", totalMemory - notAvailable);
     printf(" Used memory:           %9dB\n", header.usedMemory);

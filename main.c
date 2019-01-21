@@ -42,18 +42,26 @@ int main(int argc, char **argv)
     }
     else if (strcmp(mode, "remove") == 0)
     {
-		char respond;
-        printf("Do you really want to delete disk %s? [Y/n]\n", diskName);
-        
-        scanf("%c", &respond);
-        if (respond == 'Y')
+        if (argc != 4)
+        {
+            char respond;
+            printf("Do you really want to delete disk %s? [Y/n]\n", diskName);
+            
+            scanf("%c", &respond);
+            if (respond == 'Y')
+            {
+                RemoveDisk(diskName);
+                printf("Removed the disk %s\n", diskName);
+            }
+            else
+            {
+                printf("Aborted\n");
+            }
+        }
+        else if (strcmp(argv[3], "Y") == 0)
         {
             RemoveDisk(diskName);
-            printf("Reomved the disk %s\n", diskName);
-        }
-        else
-        {
-            printf("Aborted\n");
+            printf("Removed the disk %s\n", diskName);
         }
     }
     else if (strcmp(mode, "insert") == 0)
