@@ -45,6 +45,7 @@ struct Descriptor
     int firstNode;
     int isUsed;
     int fileSize;
+    time_t timeAdded;
 };
 
 struct Header GetHeader(FILE *disk)
@@ -287,6 +288,7 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
     newDescriptor.isUsed = 1;
     newDescriptor.fileSize = fileSize;
     newDescriptor.firstNode = curBlock;
+    time(&newDescriptor.timeAdded);
     strcpy(newDescriptor.name, newName);
     
     SetDescriptor(file, freeIndex, newDescriptor);
@@ -406,7 +408,12 @@ int DisplayFiles(const char *diskName)
         fread(&desc, sizeof(struct Descriptor), 1, file);
         if (desc.isUsed == 1)
         {
-            printf(" %3d %9dB - %s\n", ++counter, desc.fileSize, desc.name);
+            char strDate[30];
+            struct tm * timeinfo = localtime (&desc.timeAdded);
+            strcpy(strDate, asctime(timeinfo));
+            strDate[strlen(strDate)-1] = '\0';
+            
+            printf(" %3d %9dB  %30s - %s\n", ++counter, desc.fileSize, strDate, desc.name);
         }
     }
     
@@ -465,8 +472,6 @@ int ExportFile(const char *diskName, const char *fileToExport, const char *newNa
     curBlock = desc.firstNode;
     node = GetNode(file, curBlock);
     copiedBytes = 0;
-    
-    data[SIZE_BLOCK];
     
     printf("DEBUG file size: %d\n", desc.fileSize);
     
