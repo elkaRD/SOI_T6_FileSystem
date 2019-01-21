@@ -1,0 +1,46 @@
+
+	info error
+Cannot open the disk error
+Error display information about disk error
+
+	new disk 1000000
+Created disk disk
+
+	export disk error.txt
+
+	insert disk small.txt
+Inserted small.txt to the disk small.txt
+
+	insert disk small.txt
+File small.txt already exists in the disc disk
+Error inserting file
+
+	insert disk eororororor.txt
+Could not open the file eororororor.txt
+Error inserting file
+
+	delete disk fdsf
+File fdsf does not exist in the disk disk
+Error deleting file fdsf from the disk disk
+
+	delete disk small.txt
+Deleted file small.txt from the disk disk
+
+	export disk small.txt exported.txt
+Could not find file small.txt
+Error exporting file small.txt from disk disk
+
+	delete disk small.txt
+File small.txt does not exist in the disk disk
+Error deleting file small.txt from the disk disk
+
+	insert disk doc.pdf doc1.pdf
+Inserted doc1.pdf to the disk doc.pdf
+
+	insert disk doc.pdf doc1.pdf
+Inserted doc2.pdf to the disk doc.pdf
+
+	insert disk doc.pdf doc1.pdf
+No enough space for the file doc.pdf
+Error inserting file
+Removed the disk disk

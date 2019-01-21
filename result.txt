@@ -39,9 +39,9 @@ BLOCKS MEMORY MAP:
 
 	LIST OF FILES ON THE DISK disk
 
-   1        77B        Mon Jan 21 13:03:31 2019 - t3.txt
-   2        77B        Mon Jan 21 13:03:31 2019 - t2.txt
-   3        77B        Mon Jan 21 13:03:31 2019 - t1.txt
+   1        77B        Mon Jan 21 13:14:34 2019 - t3.txt
+   2        77B        Mon Jan 21 13:14:34 2019 - t2.txt
+   3        77B        Mon Jan 21 13:14:34 2019 - t1.txt
 3 files in total
 
 
@@ -84,14 +84,14 @@ BLOCKS MEMORY MAP:
 
 	LIST OF FILES ON THE DISK disk
 
-   1    103573B        Mon Jan 21 13:03:31 2019 - pic2.bmp
-   2        77B        Mon Jan 21 13:03:31 2019 - t5.txt
-   3    457157B        Mon Jan 21 13:03:31 2019 - doc1.pdf
-   4        77B        Mon Jan 21 13:03:31 2019 - t4.txt
-   5    103573B        Mon Jan 21 13:03:31 2019 - pic1.bmp
-   6        77B        Mon Jan 21 13:03:31 2019 - t3.txt
-   7        77B        Mon Jan 21 13:03:31 2019 - t2.txt
-   8        77B        Mon Jan 21 13:03:31 2019 - t1.txt
+   1    103573B        Mon Jan 21 13:14:34 2019 - pic2.bmp
+   2        77B        Mon Jan 21 13:14:34 2019 - t5.txt
+   3    457157B        Mon Jan 21 13:14:34 2019 - doc1.pdf
+   4        77B        Mon Jan 21 13:14:34 2019 - t4.txt
+   5    103573B        Mon Jan 21 13:14:34 2019 - pic1.bmp
+   6        77B        Mon Jan 21 13:14:34 2019 - t3.txt
+   7        77B        Mon Jan 21 13:14:34 2019 - t2.txt
+   8        77B        Mon Jan 21 13:14:34 2019 - t1.txt
 8 files in total
 
 
@@ -138,11 +138,11 @@ BLOCKS MEMORY MAP:
 
 	LIST OF FILES ON THE DISK disk
 
-   1    103573B        Mon Jan 21 13:03:31 2019 - pic2.bmp
-   2        77B        Mon Jan 21 13:03:31 2019 - t5.txt
-   3        77B        Mon Jan 21 13:03:31 2019 - t4.txt
-   4        77B        Mon Jan 21 13:03:31 2019 - t3.txt
-   5        77B        Mon Jan 21 13:03:31 2019 - t1.txt
+   1    103573B        Mon Jan 21 13:14:34 2019 - pic2.bmp
+   2        77B        Mon Jan 21 13:14:34 2019 - t5.txt
+   3        77B        Mon Jan 21 13:14:34 2019 - t4.txt
+   4        77B        Mon Jan 21 13:14:34 2019 - t3.txt
+   5        77B        Mon Jan 21 13:14:34 2019 - t1.txt
 5 files in total
 
 
@@ -181,12 +181,12 @@ BLOCKS MEMORY MAP:
 
 	LIST OF FILES ON THE DISK disk
 
-   1    103573B        Mon Jan 21 13:03:31 2019 - pic2.bmp
-   2        77B        Mon Jan 21 13:03:31 2019 - t5.txt
-   3        77B        Mon Jan 21 13:03:31 2019 - t4.txt
-   4        77B        Mon Jan 21 13:03:31 2019 - t3.txt
-   5  11485784B        Mon Jan 21 13:03:31 2019 - large1.png
-   6        77B        Mon Jan 21 13:03:31 2019 - t1.txt
+   1    103573B        Mon Jan 21 13:14:34 2019 - pic2.bmp
+   2        77B        Mon Jan 21 13:14:34 2019 - t5.txt
+   3        77B        Mon Jan 21 13:14:34 2019 - t4.txt
+   4        77B        Mon Jan 21 13:14:34 2019 - t3.txt
+   5  11485784B        Mon Jan 21 13:14:34 2019 - large1.png
+   6        77B        Mon Jan 21 13:14:34 2019 - t1.txt
 6 files in total
 
 
@@ -240,7 +240,7 @@ BLOCKS MEMORY MAP:
 
 	LIST OF FILES ON THE DISK disk
 
-   1  11485784B        Mon Jan 21 13:03:31 2019 - large1.png
+   1  11485784B        Mon Jan 21 13:14:34 2019 - large1.png
 1 files in total
 
 
