@@ -1,15 +1,11 @@
-//
-//  main.cpp
-//  
-//
-//  Created by Robert Dudziński on 18/01/2019.
-//
+
 
 #include "FS.h"
 
 void RemoveUpperCase(char **str)
 {
-    for (int i = 0; i < strlen(*str); ++i)
+    int i = 0;
+    for (; i < strlen(*str); ++i)
     {
         if ((*str)[i] >= 'A' && (*str)[i] <= 'Z')
         {
@@ -20,14 +16,16 @@ void RemoveUpperCase(char **str)
 
 int main(int argc, char **argv)
 {
+	char *mode = argv[1];
+    char *diskName = argv[2];
+
     if (argc <= 2)
     {
         printf("Too few arguments\n");
         return 0;
     }
     
-    char *mode = argv[1];
-    char *diskName = argv[2];
+    
     
     RemoveUpperCase(&mode);
     
@@ -44,8 +42,9 @@ int main(int argc, char **argv)
     }
     else if (strcmp(mode, "remove") == 0)
     {
+		char respond;
         printf("Do you really want to delete disk %s? [Y/n]\n", diskName);
-        char respond;
+        
         scanf("%c", &respond);
         if (respond == 'Y')
         {
@@ -59,25 +58,28 @@ int main(int argc, char **argv)
     }
     else if (strcmp(mode, "insert") == 0)
     {
-        if (argc <= 3) return 0;
+        if (argc > 3)
+		{
         
-        char *fileToInsert = argv[3];
-        
-        if (argc > 4)
-        {
-            char *newName = argv[4];
-            if (InsertFile(diskName, fileToInsert, newName))
-                printf("Error inserting file\n");
+            char *fileToInsert = argv[3];
+            
+            if (argc > 4)
+            {
+                char *newName = argv[4];
+                if (InsertFile(diskName, fileToInsert, newName))
+                    printf("Error inserting file\n");
+                else
+                    printf("Inserted %s to the disk %s\n", newName, fileToInsert);
+            }
             else
-                printf("Inserted %s to the disk %s\n", newName, fileToInsert);
-        }
-        else
-        {
-            if (InsertFile(diskName, fileToInsert, fileToInsert))
-                printf("Error inserting file\n");
-            else
-                printf("Inserted %s to the disk %s\n", fileToInsert, fileToInsert);
-        }
+            {
+                if (InsertFile(diskName, fileToInsert, fileToInsert))
+                    printf("Error inserting file\n");
+                else
+                    printf("Inserted %s to the disk %s\n", fileToInsert, fileToInsert);
+            }
+		}
+		else return 0;
     }
     else if (strcmp(mode, "help") == 0)
     {
@@ -105,25 +107,31 @@ int main(int argc, char **argv)
     }
     else if (strcmp(mode, "export") == 0)
     {
-        if (argc <= 4) return 0;
+        if (argc > 4)
+		{
         
-        char *diskName = argv[2];
-        char *fileToExport = argv[3];
-        if (ExportFile(diskName, fileToExport, argv[4]))
-            printf("Error exporting file %s from disk %s\n", fileToExport, diskName);
-        else
-            printf("Exported file %s from the disk %s\n", fileToExport, diskName);
+            char *diskName = argv[2];
+            char *fileToExport = argv[3];
+            if (ExportFile(diskName, fileToExport, argv[4]))
+                printf("Error exporting file %s from disk %s\n", fileToExport, diskName);
+            else
+                printf("Exported file %s from the disk %s\n", fileToExport, diskName);
+		}
+		else return 0;
     }
     else if (strcmp(mode, "delete") == 0)
     {
-        if (argc <= 3) return 0;
+        if (argc > 3)
+		{
         
-        char *diskName = argv[2];
-        char *fileToDelete = argv[3];
-        if (DeleteFile(diskName, fileToDelete))
-            printf("Error deleting file %s from the disk %s\n", fileToDelete, diskName);
-        else
-            printf("Deleted file %s from the disk %s\n", fileToDelete, diskName);
+            char *diskName = argv[2];
+            char *fileToDelete = argv[3];
+            if (DeleteFile(diskName, fileToDelete))
+                printf("Error deleting file %s from the disk %s\n", fileToDelete, diskName);
+            else
+                printf("Deleted file %s from the disk %s\n", fileToDelete, diskName);
+        }
+		else return 0;
     }
     else if (strcmp(mode, "info") == 0)
     {

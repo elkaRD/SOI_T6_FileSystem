@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 int CreateDisk(const char *diskName, int diskSize);
 void RemoveDisk(const char *diskName);

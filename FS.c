@@ -2,10 +2,10 @@
 
 const int VERSION = 2;
 
-const int ORG_SIZE_FILENAME     = 256;
-const int ORG_SIZE_BLOCK        = 1024 * 4;
-const int ORG_LIMIT_FILES       = 512;
-const int ORG_LIMIT_BLOCKS      = 1024 * 8;
+#define ORG_SIZE_FILENAME      256
+#define ORG_SIZE_BLOCK         1024 * 4
+#define ORG_LIMIT_FILES        512
+#define ORG_LIMIT_BLOCKS       1024 * 8
 
 int SIZE_FILENAME           = ORG_SIZE_FILENAME;
 int SIZE_BLOCK              = ORG_SIZE_BLOCK;
@@ -64,8 +64,8 @@ void SetHeader(FILE *disk, struct Header header)
 struct DiskHandler OpenDisk(const char *diskName, const char *attr)
 {
     struct DiskHandler disk;
-    disk.status = 0;
-    
+    struct Header header;
+
     FILE *file = fopen(diskName, attr);
     if (!file)
     {
@@ -74,7 +74,8 @@ struct DiskHandler OpenDisk(const char *diskName, const char *attr)
         return disk;
     }
     
-    struct Header header = GetHeader(file);
+    disk.status = 0;
+    header = GetHeader(file);
     if (header.version != VERSION)
     {
         printf("Disk was configurated for a different version of file system (%d vs %d)\n", header.version, VERSION);
@@ -96,7 +97,13 @@ struct DiskHandler OpenDisk(const char *diskName, const char *attr)
 
 int CreateDisk(const char *diskName, int diskSize)
 {
+    FILE *file;
     struct Header header;
+    struct Descriptor desc;
+    struct Node node;
+    int i = 0;
+    char emptyData[ORG_SIZE_BLOCK];
+
     header.version = VERSION;
     header.usedFiles = 0;
     header.usedBlocks = 0;
@@ -109,7 +116,7 @@ int CreateDisk(const char *diskName, int diskSize)
     header.blocksLimit = diskSize / header.blockSize;
     if (diskSize % header.blockSize != 0) header.blocksLimit++;
     
-    FILE *file = fopen(diskName, "wb");
+    file = fopen(diskName, "wb");
     
     if (!file)
     {
@@ -119,18 +126,18 @@ int CreateDisk(const char *diskName, int diskSize)
     
     fwrite(&header, sizeof(struct Header), 1, file);
     
-    struct Descriptor desc;
+    
     desc.isUsed = 0;
-    int i = 0;
+
     for (i = 0; i < header.filesLimit; ++i)
         fwrite(&desc, sizeof(struct Descriptor), 1, file);
     
-    struct Node node;
+    
     node.isUsed = 0;
     for (i = 0; i < header.blocksLimit; ++i)
         fwrite(&node, sizeof(struct Node), 1, file);
     
-    char emptyData[header.blockSize];
+    
     for (i = 0; i < header.blocksLimit; ++i)
         fwrite(emptyData, sizeof(char), header.blockSize, file);
     
@@ -145,8 +152,9 @@ void RemoveDisk(const char *diskName)
 
 int GetFileSize(FILE *file)
 {
+    int fileSize;
     fseek(file, 0, SEEK_END);
-    int fileSize = ftell(file);
+    fileSize = ftell(file);
     fseek(file, 0, SEEK_SET);
     return fileSize;
 }
@@ -208,19 +216,31 @@ int NextFreeBlock(FILE *disk, int cur)
 }
 
 int InsertFile(const char *diskName, const char *path, const char *newName)
-{
-    printf("Started inserting\n");
-    
-    struct DiskHandler dh = OpenDisk(diskName, "r+b");
+{   
+    FILE *file;
+    struct Header header;
+    int remainingMemory;
+    struct DiskHandler dh;
+    FILE *src;
+    int fileSize;
+    int freeIndex;
+    struct Descriptor desc;
+    int i;
+    int copiedBytes = 0;
+    char data[ORG_SIZE_BLOCK];
+    int curBlock;
+    struct Descriptor newDescriptor;
+
+    dh = OpenDisk(diskName, "r+b");
     if (dh.status) return dh.status;
     
-    FILE *file = dh.file;
-    struct Header header = dh.header;
+    file = dh.file;
+    header = dh.header;
     
-    int remainingMemory = LIMIT_BLOCKS - header.usedBlocks;
+    remainingMemory = LIMIT_BLOCKS - header.usedBlocks;
     remainingMemory *= SIZE_BLOCK;
     
-    FILE *src = fopen(path, "rb");
+    src = fopen(path, "rb");
     
     if (!src)
     {
@@ -229,7 +249,7 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
         return 2;
     }
     
-    int fileSize = GetFileSize(src);
+    fileSize = GetFileSize(src);
     
     if (fileSize > remainingMemory)
     {
@@ -239,11 +259,12 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
         return 3;
     }
     
-    int freeIndex = 0;
+    freeIndex = 0;
     
-    struct Descriptor desc;
+    
     fseek(file, GetDescriptorAddr(0), SEEK_SET);
-    for (int i = 0; i < LIMIT_FILES; ++i)
+    
+    for (i = 0; i < LIMIT_FILES; ++i)
     {
         fread(&desc, sizeof(struct Descriptor), 1, file);
         
@@ -258,12 +279,11 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
         if (!desc.isUsed) freeIndex = i;
     }
     
-    int copiedBytes = 0;
-    char data[SIZE_BLOCK];
     
-    int curBlock = NextFreeBlock(file, -1);
     
-    struct Descriptor newDescriptor;
+    curBlock = NextFreeBlock(file, -1);
+    
+    
     newDescriptor.isUsed = 1;
     newDescriptor.fileSize = fileSize;
     newDescriptor.firstNode = curBlock;
@@ -273,21 +293,22 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
     
     while (copiedBytes < fileSize)
     {
-        //printf("DEBUG: %d\n", freeIndex);
-        
+        int toRead;
+        int got;
+        int prev;
         struct Node node = GetNode(file, curBlock);
         node.isUsed = 1;
         node.nextNode = -1;
         
-        int toRead = fileSize - copiedBytes;
+        toRead = fileSize - copiedBytes;
         if (toRead > SIZE_BLOCK) toRead = SIZE_BLOCK;
-        int got = fread(data, sizeof(char), toRead, src);
+        got = fread(data, sizeof(char), toRead, src);
         
         fseek(file, GetBlockAddr(curBlock), SEEK_SET);
         fwrite(data, sizeof(char), got, file);
         copiedBytes += got;
         
-        int prev = curBlock;
+        prev = curBlock;
         curBlock = NextFreeBlock(file, curBlock);
         if (copiedBytes < fileSize) node.nextNode = curBlock;
         
@@ -306,11 +327,20 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
 
 int DisplayMap(const char *diskName)
 {
+    FILE *file;
+    struct Header header;
+    struct Node node;
+    int i;
+    int isUsed;
+    int begPointer;
+    int begIndex;
+    int pointer;
+
     struct DiskHandler dh = OpenDisk(diskName, "rb");
     if (dh.status) return dh.status;
     
-    FILE *file = dh.file;
-    struct Header header = dh.header;
+    file = dh.file;
+    header = dh.header;
     
     printf("     Used memory in the disk %s\n\n", diskName);
     
@@ -319,17 +349,17 @@ int DisplayMap(const char *diskName)
     printf("%9d - %9d     %9dB: %d Nodes\n", GetNodeAddr(0), GetBlockAddr(0)-1, GetBlockAddr(0)-GetNodeAddr(0), LIMIT_BLOCKS);
     printf("%9d - %9d     %9dB: %d Blocks\n", GetBlockAddr(0), SIZE_BLOCK * (LIMIT_BLOCKS-1)-1, SIZE_BLOCK * (LIMIT_BLOCKS-1) - GetBlockAddr(0), LIMIT_BLOCKS);
     printf("\n\nBLOCKS MEMORY MAP:\n\n");
-    //printf("%9d - %9d: Files descriptors\n", pointer, pointer+= sizeof(struct Descriptor) * BLOCKS_LIMIT);
     
     fseek(file, GetNodeAddr(0), SEEK_SET);
-    struct Node node;
-    fread(&node, sizeof(struct Node), 1, file);
-    int isUsed = node.isUsed;
-    int begPointer = GetBlockAddr(0);
-    int begIndex = 0;
-    int pointer = GetBlockAddr(0);
     
-    for (int i = 1; i < LIMIT_BLOCKS; ++i)
+    fread(&node, sizeof(struct Node), 1, file);
+    isUsed = node.isUsed;
+    begPointer = GetBlockAddr(0);
+    begIndex = 0;
+    pointer = GetBlockAddr(0);
+    
+    
+    for (i = 1; i < LIMIT_BLOCKS; ++i)
     {
         fread(&node, sizeof(struct Node), 1, file);
         pointer += SIZE_BLOCK;
@@ -354,18 +384,24 @@ int DisplayMap(const char *diskName)
 
 int DisplayFiles(const char *diskName)
 {
+    FILE *file;
+    struct Header header;
+    struct Descriptor desc;
+    int counter = 0;
+    int i;
+
     struct DiskHandler dh = OpenDisk(diskName, "rb");
     if (dh.status) return dh.status;
     
-    FILE *file = dh.file;
-    struct Header header = dh.header;
+    file = dh.file;
+    header = dh.header;
     
-    struct Descriptor desc;
-    int counter = 0;
+    
     
     fseek(file, GetDescriptorAddr(0), SEEK_SET);
     
-    for (int i = 0; i < LIMIT_FILES; ++i)
+    
+    for (i = 0; i < LIMIT_FILES; ++i)
     {
         fread(&desc, sizeof(struct Descriptor), 1, file);
         if (desc.isUsed == 1)
@@ -382,16 +418,26 @@ int DisplayFiles(const char *diskName)
 
 int ExportFile(const char *diskName, const char *fileToExport, const char *newName)
 {
+    FILE *file, *dst;
+    struct Header header;
+    struct Descriptor desc;
+    int fileIndex = -1;
+    int i;
+    int curBlock;
+    struct Node node;
+    int copiedBytes = 0;
+    
+    char data[ORG_SIZE_BLOCK];
     struct DiskHandler dh = OpenDisk(diskName, "rb");
     if (dh.status) return dh.status;
     
-    FILE *file = dh.file;
-    struct Header header = dh.header;
+    file = dh.file;
+    header = dh.header;
     
-    struct Descriptor desc;
-    int fileIndex = -1;
     
-    for (int i = 0; i < LIMIT_FILES; ++i)
+    
+    
+    for (i = 0; i < LIMIT_FILES; ++i)
     {
         fread(&desc, sizeof(struct Descriptor), 1, file);
         if (desc.isUsed && strcmp(desc.name, fileToExport) == 0)
@@ -408,7 +454,7 @@ int ExportFile(const char *diskName, const char *fileToExport, const char *newNa
         return 3;
     }
     
-    FILE *dst = fopen(newName, "wb");
+    dst = fopen(newName, "wb");
     if (!dst)
     {
         printf("Cannot create destination file %s\n", newName);
@@ -416,21 +462,22 @@ int ExportFile(const char *diskName, const char *fileToExport, const char *newNa
         return 4;
     }
     
-    int curBlock = desc.firstNode;
-    struct Node node = GetNode(file, curBlock);
-    int copiedBytes = 0;
+    curBlock = desc.firstNode;
+    node = GetNode(file, curBlock);
+    copiedBytes = 0;
     
-    char data[SIZE_BLOCK];
+    data[SIZE_BLOCK];
     
     printf("DEBUG file size: %d\n", desc.fileSize);
     
     while (copiedBytes < desc.fileSize)
     {
+        int got;
         int toRead = desc.fileSize - copiedBytes;
         if (toRead > SIZE_BLOCK) toRead = SIZE_BLOCK;
         
         fseek(file, GetBlockAddr(curBlock), SEEK_SET);
-        int got = fread(data, sizeof(char), toRead, file);
+        got = fread(data, sizeof(char), toRead, file);
         fwrite(data, sizeof(char), got, dst);
         copiedBytes += got;
         
@@ -445,16 +492,23 @@ int ExportFile(const char *diskName, const char *fileToExport, const char *newNa
 
 int DeleteFile(const char *diskName, const char *fileName)
 {
+    FILE *file;
+    struct Header header;
+    struct Descriptor desc;
+    int nodeIndex = -1;
+    int i;
+    struct Node curNode;
+
     struct DiskHandler dh = OpenDisk(diskName, "r+b");
     if (dh.status) return dh.status;
     
-    FILE *file = dh.file;
-    struct Header header = dh.header;
+    file = dh.file;
+    header = dh.header;
     
-    struct Descriptor desc;
-    int nodeIndex = -1;
     
-    for (int i = 0; i < LIMIT_FILES; ++i)
+    
+    
+    for (i = 0; i < LIMIT_FILES; ++i)
     {
         desc = GetDescriptor(file, i);
         if (desc.isUsed && strcmp(desc.name, fileName) == 0)
@@ -473,7 +527,7 @@ int DeleteFile(const char *diskName, const char *fileName)
         return 3;
     }
     
-    struct Node curNode = GetNode(file, nodeIndex);
+    curNode = GetNode(file, nodeIndex);
     
     do
     {
@@ -496,15 +550,21 @@ int DeleteFile(const char *diskName, const char *fileName)
 
 int DisplayInfo(const char *diskName)
 {
+    FILE *file;
+    struct Header header;
+    int totalMemory;
+    int notAvailable;
+    double frag;
+    
     struct DiskHandler dh = OpenDisk(diskName, "rb");
     if (dh.status) return dh.status;
     
-    FILE *file = dh.file;
-    struct Header header = dh.header;
+    file = dh.file;
+    header = dh.header;
     
-    int totalMemory = header.blocksLimit * header.blockSize;
-    int notAvailable = header.usedBlocks * header.blockSize;
-    double frag = 100.0 - (double)header.usedMemory / (double)notAvailable * 100.0;
+    totalMemory = header.blocksLimit * header.blockSize;
+    notAvailable = header.usedBlocks * header.blockSize;
+    frag = 100.0 - (double)header.usedMemory / (double)notAvailable * 100.0;
     
     printf("\n\n      Information about disk %s\n\n", diskName);
     printf(" Total memory:          %9dB\n", totalMemory);
