@@ -18,7 +18,7 @@ Created disk disk
  Blocks:                9766
  Used blocks:           0
 
-#############################################################################################
+################################################################
 Insert few small files
 Inserted t1.txt to the disk small.txt
 Inserted t2.txt to the disk small.txt
@@ -39,9 +39,9 @@ BLOCKS MEMORY MAP:
 
 	LIST OF FILES ON THE DISK disk
 
-   1        77B        Mon Jan 21 12:55:42 2019 - t3.txt
-   2        77B        Mon Jan 21 12:55:42 2019 - t2.txt
-   3        77B        Mon Jan 21 12:55:42 2019 - t1.txt
+   1        77B        Mon Jan 21 13:03:31 2019 - t3.txt
+   2        77B        Mon Jan 21 13:03:31 2019 - t2.txt
+   3        77B        Mon Jan 21 13:03:31 2019 - t1.txt
 3 files in total
 
 
@@ -61,7 +61,7 @@ BLOCKS MEMORY MAP:
  Blocks:                9766
  Used blocks:           3
 
-#############################################################################################
+################################################################
 Insert medium and small files
 Inserted pic1.bmp to the disk logo.bmp
 Inserted t4.txt to the disk small.txt
@@ -84,14 +84,14 @@ BLOCKS MEMORY MAP:
 
 	LIST OF FILES ON THE DISK disk
 
-   1    103573B        Mon Jan 21 12:55:42 2019 - pic2.bmp
-   2        77B        Mon Jan 21 12:55:42 2019 - t5.txt
-   3    457157B        Mon Jan 21 12:55:42 2019 - doc1.pdf
-   4        77B        Mon Jan 21 12:55:42 2019 - t4.txt
-   5    103573B        Mon Jan 21 12:55:42 2019 - pic1.bmp
-   6        77B        Mon Jan 21 12:55:42 2019 - t3.txt
-   7        77B        Mon Jan 21 12:55:42 2019 - t2.txt
-   8        77B        Mon Jan 21 12:55:42 2019 - t1.txt
+   1    103573B        Mon Jan 21 13:03:31 2019 - pic2.bmp
+   2        77B        Mon Jan 21 13:03:31 2019 - t5.txt
+   3    457157B        Mon Jan 21 13:03:31 2019 - doc1.pdf
+   4        77B        Mon Jan 21 13:03:31 2019 - t4.txt
+   5    103573B        Mon Jan 21 13:03:31 2019 - pic1.bmp
+   6        77B        Mon Jan 21 13:03:31 2019 - t3.txt
+   7        77B        Mon Jan 21 13:03:31 2019 - t2.txt
+   8        77B        Mon Jan 21 13:03:31 2019 - t1.txt
 8 files in total
 
 
@@ -111,7 +111,7 @@ BLOCKS MEMORY MAP:
  Blocks:                9766
  Used blocks:           169
 
-#############################################################################################
+################################################################
 Remove few files
 Deleted file t2.txt from the disk disk
 Deleted file pic1.bmp from the disk disk
@@ -138,11 +138,11 @@ BLOCKS MEMORY MAP:
 
 	LIST OF FILES ON THE DISK disk
 
-   1    103573B        Mon Jan 21 12:55:42 2019 - pic2.bmp
-   2        77B        Mon Jan 21 12:55:42 2019 - t5.txt
-   3        77B        Mon Jan 21 12:55:42 2019 - t4.txt
-   4        77B        Mon Jan 21 12:55:42 2019 - t3.txt
-   5        77B        Mon Jan 21 12:55:42 2019 - t1.txt
+   1    103573B        Mon Jan 21 13:03:31 2019 - pic2.bmp
+   2        77B        Mon Jan 21 13:03:31 2019 - t5.txt
+   3        77B        Mon Jan 21 13:03:31 2019 - t4.txt
+   4        77B        Mon Jan 21 13:03:31 2019 - t3.txt
+   5        77B        Mon Jan 21 13:03:31 2019 - t1.txt
 5 files in total
 
 
@@ -162,7 +162,7 @@ BLOCKS MEMORY MAP:
  Blocks:                9766
  Used blocks:           30
 
-#############################################################################################
+################################################################
 Insert large file
 Inserted large1.png to the disk large.png
 
@@ -181,12 +181,12 @@ BLOCKS MEMORY MAP:
 
 	LIST OF FILES ON THE DISK disk
 
-   1    103573B        Mon Jan 21 12:55:42 2019 - pic2.bmp
-   2        77B        Mon Jan 21 12:55:42 2019 - t5.txt
-   3        77B        Mon Jan 21 12:55:42 2019 - t4.txt
-   4        77B        Mon Jan 21 12:55:42 2019 - t3.txt
-   5  11485784B        Mon Jan 21 12:55:42 2019 - large1.png
-   6        77B        Mon Jan 21 12:55:42 2019 - t1.txt
+   1    103573B        Mon Jan 21 13:03:31 2019 - pic2.bmp
+   2        77B        Mon Jan 21 13:03:31 2019 - t5.txt
+   3        77B        Mon Jan 21 13:03:31 2019 - t4.txt
+   4        77B        Mon Jan 21 13:03:31 2019 - t3.txt
+   5  11485784B        Mon Jan 21 13:03:31 2019 - large1.png
+   6        77B        Mon Jan 21 13:03:31 2019 - t1.txt
 6 files in total
 
 
@@ -206,11 +206,11 @@ BLOCKS MEMORY MAP:
  Blocks:                9766
  Used blocks:           2835
 
-#############################################################################################
+################################################################
 Export pic2.bmp and large.png
 Exported file pic2.bmp from the disk disk
 Exported file large1.png from the disk disk
-#############################################################################################
+################################################################
 Remove everything except large file
 Deleted file t1.txt from the disk disk
 Deleted file t3.txt from the disk disk
@@ -240,7 +240,7 @@ BLOCKS MEMORY MAP:
 
 	LIST OF FILES ON THE DISK disk
 
-   1  11485784B        Mon Jan 21 12:55:42 2019 - large1.png
+   1  11485784B        Mon Jan 21 13:03:31 2019 - large1.png
 1 files in total
 
 
@@ -260,7 +260,7 @@ BLOCKS MEMORY MAP:
  Blocks:                9766
  Used blocks:           2805
 
-#############################################################################################
+################################################################
 Remove the last (large) file
 Deleted file large1.png from the disk disk
 
@@ -297,6 +297,6 @@ BLOCKS MEMORY MAP:
  Blocks:                9766
  Used blocks:           0
 
-#############################################################################################
+################################################################
 Remove the disk
 Removed the disk disk
