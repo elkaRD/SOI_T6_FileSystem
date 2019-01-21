@@ -1,4 +1,10 @@
-
+//
+//  SOI T6
+//  File system
+//
+//  File: main.c
+//  Copyright (C) Robert Dudzinski 2019
+//
 
 #include "FS.h"
 
@@ -6,12 +12,8 @@ void RemoveUpperCase(char **str)
 {
     int i = 0;
     for (; i < strlen(*str); ++i)
-    {
         if ((*str)[i] >= 'A' && (*str)[i] <= 'Z')
-        {
             (*str)[i] += 32;
-        }
-    }
 }
 
 int main(int argc, char **argv)
@@ -24,8 +26,6 @@ int main(int argc, char **argv)
         printf("Too few arguments\n");
         return 0;
     }
-    
-    
     
     RemoveUpperCase(&mode);
     
@@ -60,7 +60,6 @@ int main(int argc, char **argv)
     {
         if (argc > 3)
 		{
-        
             char *fileToInsert = argv[3];
             
             if (argc > 4)
@@ -109,7 +108,6 @@ int main(int argc, char **argv)
     {
         if (argc > 4)
 		{
-        
             char *diskName = argv[2];
             char *fileToExport = argv[3];
             if (ExportFile(diskName, fileToExport, argv[4]))
@@ -123,7 +121,6 @@ int main(int argc, char **argv)
     {
         if (argc > 3)
 		{
-        
             char *diskName = argv[2];
             char *fileToDelete = argv[3];
             if (DeleteFile(diskName, fileToDelete))

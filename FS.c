@@ -1,3 +1,11 @@
+//
+//  SOI T6
+//  File system
+//
+//  File: FS.c
+//  Copyright (C) Robert Dudzinski 2019
+//
+
 #include "FS.h"
 
 const int VERSION = 2;
@@ -102,8 +110,9 @@ int CreateDisk(const char *diskName, int diskSize)
     struct Header header;
     struct Descriptor desc;
     struct Node node;
-    int i = 0;
+    
     char emptyData[ORG_SIZE_BLOCK];
+    int i;
 
     header.version = VERSION;
     header.usedFiles = 0;
@@ -127,17 +136,14 @@ int CreateDisk(const char *diskName, int diskSize)
     
     fwrite(&header, sizeof(struct Header), 1, file);
     
-    
     desc.isUsed = 0;
 
     for (i = 0; i < header.filesLimit; ++i)
         fwrite(&desc, sizeof(struct Descriptor), 1, file);
     
-    
     node.isUsed = 0;
     for (i = 0; i < header.blocksLimit; ++i)
         fwrite(&node, sizeof(struct Node), 1, file);
-    
     
     for (i = 0; i < header.blocksLimit; ++i)
         fwrite(emptyData, sizeof(char), header.blockSize, file);
@@ -207,6 +213,7 @@ int NextFreeBlock(FILE *disk, int cur)
 {
     struct Node node;
     int i = cur+1;
+    
     fseek(disk, GetNodeAddr(i), SEEK_SET);
     for (; i < LIMIT_BLOCKS; ++i)
     {
@@ -218,20 +225,21 @@ int NextFreeBlock(FILE *disk, int cur)
 
 int InsertFile(const char *diskName, const char *path, const char *newName)
 {   
-    FILE *file;
-    struct Header header;
-    int remainingMemory;
+    FILE *file, *src;
     struct DiskHandler dh;
-    FILE *src;
+    struct Header header;
+    struct Descriptor desc;
+    struct Descriptor newDescriptor;
+    
+    int remainingMemory;
     int fileSize;
     int freeIndex;
-    struct Descriptor desc;
+    int curBlock;
     int i;
     int copiedBytes = 0;
+    
     char data[ORG_SIZE_BLOCK];
-    int curBlock;
-    struct Descriptor newDescriptor;
-
+    
     dh = OpenDisk(diskName, "r+b");
     if (dh.status) return dh.status;
     
@@ -261,8 +269,7 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
     }
     
     freeIndex = 0;
-    
-    
+
     fseek(file, GetDescriptorAddr(0), SEEK_SET);
     
     for (i = 0; i < LIMIT_FILES; ++i)
@@ -280,10 +287,7 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
         if (!desc.isUsed) freeIndex = i;
     }
     
-    
-    
     curBlock = NextFreeBlock(file, -1);
-    
     
     newDescriptor.isUsed = 1;
     newDescriptor.fileSize = fileSize;
@@ -298,6 +302,7 @@ int InsertFile(const char *diskName, const char *path, const char *newName)
         int toRead;
         int got;
         int prev;
+        
         struct Node node = GetNode(file, curBlock);
         node.isUsed = 1;
         node.nextNode = -1;
@@ -332,11 +337,12 @@ int DisplayMap(const char *diskName)
     FILE *file;
     struct Header header;
     struct Node node;
-    int i;
+    
     int isUsed;
     int begPointer;
     int begIndex;
     int pointer;
+    int i;
 
     struct DiskHandler dh = OpenDisk(diskName, "rb");
     if (dh.status) return dh.status;
@@ -359,7 +365,6 @@ int DisplayMap(const char *diskName)
     begPointer = GetBlockAddr(0);
     begIndex = 0;
     pointer = GetBlockAddr(0);
-    
     
     for (i = 1; i < LIMIT_BLOCKS; ++i)
     {
@@ -389,6 +394,7 @@ int DisplayFiles(const char *diskName)
     FILE *file;
     struct Header header;
     struct Descriptor desc;
+    
     int counter = 0;
     int i;
 
@@ -398,10 +404,7 @@ int DisplayFiles(const char *diskName)
     file = dh.file;
     header = dh.header;
     
-    
-    
     fseek(file, GetDescriptorAddr(0), SEEK_SET);
-    
     
     for (i = 0; i < LIMIT_FILES; ++i)
     {
@@ -428,21 +431,20 @@ int ExportFile(const char *diskName, const char *fileToExport, const char *newNa
     FILE *file, *dst;
     struct Header header;
     struct Descriptor desc;
+    struct Node node;
+    
     int fileIndex = -1;
     int i;
     int curBlock;
-    struct Node node;
     int copiedBytes = 0;
     
     char data[ORG_SIZE_BLOCK];
+    
     struct DiskHandler dh = OpenDisk(diskName, "rb");
     if (dh.status) return dh.status;
     
     file = dh.file;
     header = dh.header;
-    
-    
-    
     
     for (i = 0; i < LIMIT_FILES; ++i)
     {
@@ -500,18 +502,16 @@ int DeleteFile(const char *diskName, const char *fileName)
     FILE *file;
     struct Header header;
     struct Descriptor desc;
+    struct Node curNode;
+    
     int nodeIndex = -1;
     int i;
-    struct Node curNode;
 
     struct DiskHandler dh = OpenDisk(diskName, "r+b");
     if (dh.status) return dh.status;
     
     file = dh.file;
     header = dh.header;
-    
-    
-    
     
     for (i = 0; i < LIMIT_FILES; ++i)
     {
@@ -557,6 +557,7 @@ int DisplayInfo(const char *diskName)
 {
     FILE *file;
     struct Header header;
+    g
     int totalMemory;
     int notAvailable;
     double frag;

@@ -1,3 +1,11 @@
+//
+//  SOI T6
+//  File system
+//
+//  File: FS.h
+//  Copyright (C) Robert Dudzinski 2019
+//
+
 #ifndef FS_H
 #define FS_H
 
