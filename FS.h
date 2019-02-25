@@ -1,10 +1,15 @@
-//
-//  SOI T6
-//  File system
-//
-//  File: FS.h
-//  Copyright (C) Robert Dudzinski 2019
-//
+/*
+ *  EN: Project for Operating Systems classes at Warsaw University of Technology
+ *      File System
+ *      Using the C89-style to work in Minix 2.0.3
+ *
+ *  PL: Projekt SOI (Systemy Operacyjne) PW WEiTI 18Z
+ *      T6 - System Plikow
+ *
+ *      Copyright (C) Robert Dudzinski 2019
+ *
+ *      File: FS.h
+ */
 
 #ifndef FS_H
 #define FS_H
